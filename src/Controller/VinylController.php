@@ -39,7 +39,10 @@ class VinylController extends AbstractController
         $genre = $slug ? u(str_replace('-', ' ', $slug))->title(true) : null;
         $mixes = $cache->get('mixes_data', function (CacheItemInterface $cacheItem) use ($httpClient) {
             $cacheItem->expiresAfter(5);
-            $response = $httpClient->request('GET', 'https://raw.githubusercontent.com/SymfonyCasts/vinyl-mixes/main/mixes.json');
+            $response = $httpClient->request(
+                'GET',
+                'https://raw.githubusercontent.com/SymfonyCasts/vinyl-mixes/main/mixes.json'
+            );
 
             return $response->toArray();
         });
@@ -49,5 +52,6 @@ class VinylController extends AbstractController
             'mixes' => $mixes,
         ]);
     }
+
 
 }
