@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
+use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use function Symfony\Component\String\u;
 
 class VinylController extends AbstractController
@@ -29,13 +29,43 @@ class VinylController extends AbstractController
     }
 
     #[Route('/browse/{slug}', name: 'app_browse')]
-    public function browse(string $slug = null): Response
+    public function browse(DateTimeFormatter $timeFormatter, string $slug = null): Response
     {
         $genre = $slug ? u(str_replace('-', ' ', $slug))->title(true) : null;
+        $mixes = $this->getMixes();
 
-
+        foreach ($mixes as $key => $mix) {
+            $mixes [$key] ['agp'] = $timeFormatter->formatDiff($mix['createdAt']);
+        }
+dd($mixes);
         return $this->render('vinyl/browse.html.twig', [
             'genre' => $genre,
+            'mixes' => $mixes,
         ]);
+    }
+
+    private function getMixes(): array
+    {
+        // temporary fake "mixes" data
+        return [
+            [
+                'title' => 'Gramberg\'s BeatBox',
+                'trackCount' => 14,
+                'genre' => 'Rock',
+                'createdAt' => new \DateTime('2024-03-02'),
+            ],
+            [
+                'title' => 'Put a Hex on your Ex',
+                'trackCount' => 8,
+                'genre' => 'Heavy Metal',
+                'createdAt' => new \DateTime('2024-02-28'),
+            ],
+            [
+                'title' => 'Spice Grills - Summer Tunes',
+                'trackCount' => 10,
+                'genre' => 'Pop',
+                'createdAt' => new \DateTime('2024-03-04'),
+            ],
+        ];
     }
 }
