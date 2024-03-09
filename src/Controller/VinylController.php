@@ -2,9 +2,13 @@
 
 namespace App\Controller;
 
+use Psr\Cache\CacheItemInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 use function Symfony\Component\String\u;
 
 class VinylController extends AbstractController
@@ -28,10 +32,17 @@ class VinylController extends AbstractController
     }
 
     #[Route('/browse/{slug}', name: 'app_browse')]
-    public function browse(string $slug = null): Response
+    public function browse(HttpClientInterface $httpClient, CacheInterface $cache, string $slug = null): Response
     {
+        dump($cache);
+
         $genre = $slug ? u(str_replace('-', ' ', $slug))->title(true) : null;
-        $mixes = $this->getMixes();
+        $mixes = $cache->get('mixes_data', function (CacheItemInterface $cacheItem) use ($httpClient) {
+            $cacheItem->expiresAfter(5);
+            $response = $httpClient->request('GET', 'https://raw.githubusercontent.com/SymfonyCasts/vinyl-mixes/main/mixes.json');
+
+            return $response->toArray();
+        });
 
         return $this->render('vinyl/browse.html.twig', [
             'genre' => $genre,
@@ -39,28 +50,4 @@ class VinylController extends AbstractController
         ]);
     }
 
-    private function getMixes(): array
-    {
-        // temporary fake "mixes" data
-        return [
-            [
-                'title' => 'Gramberg\'s BeatBox',
-                'trackCount' => 14,
-                'genre' => 'Rock',
-                'createdAt' => new \DateTime('2024-03-02'),
-            ],
-            [
-                'title' => 'Put a Hex on your Ex',
-                'trackCount' => 8,
-                'genre' => 'Heavy Metal',
-                'createdAt' => new \DateTime('2024-02-28'),
-            ],
-            [
-                'title' => 'Spice Grills - Summer Tunes',
-                'trackCount' => 10,
-                'genre' => 'Pop',
-                'createdAt' => new \DateTime('2024-03-04'),
-            ],
-        ];
-    }
 }
