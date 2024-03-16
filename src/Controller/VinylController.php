@@ -34,7 +34,6 @@ class VinylController extends AbstractController
     #[Route('/browse/{slug}', name: 'app_browse')]
     public function browse(HttpClientInterface $httpClient, CacheInterface $cache, string $slug = null): Response
     {
-        dump($cache);
 
         $genre = $slug ? u(str_replace('-', ' ', $slug))->title(true) : null;
         $mixes = $cache->get('mixes_data', function (CacheItemInterface $cacheItem) use ($httpClient) {
@@ -52,6 +51,5 @@ class VinylController extends AbstractController
             'mixes' => $mixes,
         ]);
     }
-
 
 }
