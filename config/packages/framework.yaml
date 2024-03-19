@@ -9,6 +9,10 @@ framework:
     #esi: true
     #fragments: true
 
+    http_client:
+        scoped_clients:
+            githubContentClient: https://raw.githubusercontent.com
+
 when@test:
     framework:
         test: true
