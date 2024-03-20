@@ -13,8 +13,11 @@ use function Symfony\Component\String\u;
 class VinylController extends AbstractController
 {
 
-    public function __construct(private readonly MixRepository $mixRepository) {
+    public function __construct(
+        private readonly bool $isDebug,
+        private readonly MixRepository $mixRepository
 
+    ) {
     }
 
     #[Route('/', name: 'app_homepage')]
